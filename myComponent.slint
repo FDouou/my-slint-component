@@ -1,23 +1,23 @@
 component Line {
-    in property <float> x1; 
-    in property <float> x2;
-    in property <float> y1;
-    in property <float> y2;
+    in property <length> x1; 
+    in property <length> x2;
+    in property <length> y1;
+    in property <length> y2;
 
     in property <color> color : blue; //默认颜色
     in property <length> w:1px; //默认线宽
 
-    x:(x1<x2?x1:x2) * 1px;
-    y:(y1<y2?y1:y2) * 1px;
+    x:(x1<x2?x1:x2);
+    y:(y1<y2?y1:y2);
 
-    width: (x2 -x1).abs() * 1px + w;
-    height: (y2 -y1).abs() * 1px + w;
+    width: (x2 -x1).abs() + w;
+    height: (y2 -y1).abs() + w;
 
     Path {
         stroke: color;
         stroke-width: w;
-        MoveTo {x:x1; y:y1;}
-        LineTo {x:x2; y:y2;}
+        MoveTo {x:x1/1px; y:y1/1px;}
+        LineTo {x:x2/1px; y:y2/1px;}
     }
 }
 
@@ -31,18 +31,16 @@ component Linegraph {
     in property <length> line_width:1px;//默认线宽度
      
     Rectangle {  
-        x:parent.x;  y:parent.y;
-        width: parent.width; height: parent.height;
         background: bg_color;
         border-color: bg_border_color;
         border-width: bg_border_width;
         
         for i in (yy.length -1) : Line{
             w:line_width;
-            x1: root.x/1px + i*step; 
-            y1: (root.y+root.height -1px)/1px - yy[i];
-            x2: root.x/1px + (i+1)*step;  
-            y2: (root.y+root.height -1px)/1px - yy[i+1];     
+            x1: parent.x + i*step*1px; 
+            y1: (parent.y+parent.height -1px) - yy[i]*1px;
+            x2: parent.x + (i+1)*step*1px;  
+            y2: (parent.y+parent.height -1px) - yy[i+1]*1px;     
         }
     }
 }
