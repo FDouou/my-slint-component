@@ -3,6 +3,6 @@
 目前包括：
 线 Line
 折线图 Linegraph
-![Uploading image.png…]()
+
 
 slint component for myself
