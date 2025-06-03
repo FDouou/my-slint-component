@@ -1,0 +1,48 @@
+component Line {
+    in property <float> x1; 
+    in property <float> x2;
+    in property <float> y1;
+    in property <float> y2;
+
+    in property <color> color : blue; //默认颜色
+    in property <length> w:1px; //默认线宽
+
+    x:(x1<x2?x1:x2) * 1px;
+    y:(y1<y2?y1:y2) * 1px;
+
+    width: (x2 -x1).abs() * 1px + w;
+    height: (y2 -y1).abs() * 1px + w;
+
+    Path {
+        stroke: color;
+        stroke-width: w;
+        MoveTo {x:x1; y:y1;}
+        LineTo {x:x2; y:y2;}
+    }
+}
+
+component Linegraph {
+    in property <[float]> yy; //输入
+    in property <float> step:1; //默认步长1（两个点间距）
+
+    in property <color> bg_color: transparent;//默认背景颜色透明
+    in property <color> bg_border_color:black;//默认边框颜色黑色
+    in property <length> bg_border_width:1px; //默认边框宽度
+    in property <length> line_width:1px;//默认线宽度
+     
+    Rectangle {  
+        x:parent.x;  y:parent.y;
+        width: parent.width; height: parent.height;
+        background: bg_color;
+        border-color: bg_border_color;
+        border-width: bg_border_width;
+        
+        for i in (yy.length -1) : Line{
+            w:line_width;
+            x1: root.x/1px + i*step; 
+            y1: (root.y+root.height -1px)/1px - yy[i];
+            x2: root.x/1px + (i+1)*step;  
+            y2: (root.y+root.height -1px)/1px - yy[i+1];     
+        }
+    }
+}
