@@ -1,15 +1,28 @@
+component Circle {
+    in property <length> r;
+    in property <color> bg_color: blue;
+
+    Rectangle {
+        width: r * 2;
+        height: r * 2;
+        border-radius: r;
+        background: bg_color;
+    }
+}
+
 component Line {
     in property <length> x1; 
     in property <length> x2;
     in property <length> y1;
     in property <length> y2;
 
-    in property <color> color : blue; //默认颜色
-    in property <length> w:1px; //默认线宽
+    in property <bool> show-point:true;//是否显示点
+    in property <length> r-point:1px;//点半径
+    in property <color> color : blue; //线颜色
+    in property <length> w:1px; //线宽
 
-    x:(x1<x2?x1:x2);
-    y:(y1<y2?y1:y2);
-
+    x:(x1<x2?x1:x2) ;
+    y:(y1<y2?y1:y2) ;
     width: (x2 -x1).abs() + w;
     height: (y2 -y1).abs() + w;
 
@@ -19,23 +32,42 @@ component Line {
         MoveTo {x:x1/1px; y:y1/1px;}
         LineTo {x:x2/1px; y:y2/1px;}
     }
+    if show-point==true:
+    Circle {
+        x:x1 -root.x;
+        y:y1 -root.y;
+        r:r-point>w?r-point:w;
+        bg_color: color;
+    }
+    if show-point==true:
+    Circle {
+        x:x2 -root.x;
+        y:y2 -root.y;
+        r:r-point>w?r-point:w;
+        bg_color: color;
+    }
 }
 
 component Linegraph {
-    in property <[float]> yy; //输入
-    in property <float> step:1; //默认步长1（两个点间距）
+    in property <[float]> yy; //输入数组
+    in property <float> step:1; //步长（两个点间距）
 
-    in property <color> bg_color: transparent;//默认背景颜色透明
-    in property <color> bg_border_color:black;//默认边框颜色黑色
-    in property <length> bg_border_width:1px; //默认边框宽度
-    in property <length> line_width:1px;//默认线宽度
+    in property <bool> show-point:true;//是否显示点
+    in property <length> r-point:1px;//点半径
+    in property <color> bg_color: transparent;//背景颜色
+    in property <color> bg_border_color:black;//边框颜色
+    in property <length> bg_border_width:1px; //边框宽度
+    in property <length> line_width:1px;//线宽度
      
     Rectangle {  
         background: bg_color;
         border-color: bg_border_color;
         border-width: bg_border_width;
+        clip: true;//超出框外的不显示
         
         for i in (yy.length -1) : Line{
+            show-point: show-point;
+            r-point: r-point;
             w:line_width;
             x1: parent.x + i*step*1px; 
             y1: (parent.y+parent.height -1px) - yy[i]*1px;
