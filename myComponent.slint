@@ -19,16 +19,16 @@ component Line {
     in property <bool> show-point:true;//是否显示点
     in property <length> r-point:1px;//点半径
     in property <color> color : blue; //线颜色
-    in property <length> w:1px; //线宽
+    in property <length> line_width:1px; //线宽
 
     x:(x1<x2?x1:x2) ;
     y:(y1<y2?y1:y2) ;
-    width: (x2 -x1).abs() + w;
-    height: (y2 -y1).abs() + w;
+    width: (x2 -x1).abs() + line_width;
+    height: (y2 -y1).abs() + line_width;
 
     Path {
         stroke: color;
-        stroke-width: w;
+        stroke-width: line_width;
         MoveTo {x:x1/1px; y:y1/1px;}
         LineTo {x:x2/1px; y:y2/1px;}
     }
@@ -43,7 +43,7 @@ component Line {
     Circle {
         x:x2 -root.x;
         y:y2 -root.y;
-        r:r-point>w?r-point:w;
+        r:r-point>line_width?r-point:line_width;
         bg_color: color;
     }
 }
@@ -57,6 +57,7 @@ component Linegraph {
     in property <color> bg_color: transparent;//背景颜色
     in property <color> bg_border_color:black;//边框颜色
     in property <length> bg_border_width:1px; //边框宽度
+    in property <color> color : blue; //线颜色
     in property <length> line_width:1px;//线宽度
      
     Rectangle {  
@@ -68,7 +69,7 @@ component Linegraph {
         for i in (yy.length -1) : Line{
             show-point: show-point;
             r-point: r-point;
-            w:line_width;
+            line_width:line_width;
             x1: parent.x + i*step*1px; 
             y1: (parent.y+parent.height -1px) - yy[i]*1px;
             x2: parent.x + (i+1)*step*1px;  
