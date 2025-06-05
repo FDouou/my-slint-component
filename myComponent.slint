@@ -36,7 +36,7 @@ component Line {
     Circle {
         x:x1 -root.x;
         y:y1 -root.y;
-        r:r-point>w?r-point:w;
+        r:r-point>line_width?r-point:line_width;
         bg_color: color;
     }
     if show-point==true:
@@ -59,14 +59,18 @@ component Linegraph {
     in property <length> bg_border_width:1px; //边框宽度
     in property <color> color : blue; //线颜色
     in property <length> line_width:1px;//线宽度
+
+    in-out property <float> y_index:0;
+    in-out property <float> x_index:0;
      
     Rectangle {  
         background: bg_color;
         border-color: bg_border_color;
         border-width: bg_border_width;
         clip: true;//超出框外的不显示
-        
+
         for i in (yy.length -1) : Line{
+            color: color;
             show-point: show-point;
             r-point: r-point;
             line_width:line_width;
@@ -75,5 +79,7 @@ component Linegraph {
             x2: parent.x + (i+1)*step*1px;  
             y2: (parent.y+parent.height -1px) - yy[i+1]*1px;     
         }
+
+        
     }
 }
