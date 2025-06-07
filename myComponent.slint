@@ -1,4 +1,6 @@
-component Circle {
+export component Circle {
+    //利用自动居中和大小限制，绑定圆心位置为传入的x,y
+    //若传入width和height会发送偏移
     in property <length> r;
     in property <color> bg_color: blue;
 
@@ -10,7 +12,7 @@ component Circle {
     }
 }
 
-component Line {
+export component Line {
     in property <length> x1; 
     in property <length> x2;
     in property <length> y1;
@@ -48,11 +50,11 @@ component Line {
     }
 }
 
-component Linegraph {
+export component Linegraph {
     in property <[float]> yy; //输入数组
     in property <float> step:1; //步长（两个点间距）
-
-    in property <bool> show-point:true;//是否显示点
+    
+    in property <bool> show-point:true;//是否显示点，数据量大时建议关闭
     in property <length> r-point:1px;//点半径
     in property <color> bg_color: transparent;//背景颜色
     in property <color> bg_border_color:black;//边框颜色
@@ -60,26 +62,82 @@ component Linegraph {
     in property <color> color : blue; //线颜色
     in property <length> line_width:1px;//线宽度
 
+    //用于实现图像拖拽定位
+    in-out property <bool> drag:false;//是否开启拖拽，数据量大时建议在后端实现刷新vec/array而不是拖拽
     in-out property <float> y_index:0;
     in-out property <float> x_index:0;
-     
-    Rectangle {  
+    
+    Rectangle {
         background: bg_color;
         border-color: bg_border_color;
         border-width: bg_border_width;
         clip: true;//超出框外的不显示
-
-        for i in (yy.length -1) : Line{
-            color: color;
-            show-point: show-point;
-            r-point: r-point;
-            line_width:line_width;
-            x1: parent.x + i*step*1px; 
-            y1: (parent.y+parent.height -1px) - yy[i]*1px;
-            x2: parent.x + (i+1)*step*1px;  
-            y2: (parent.y+parent.height -1px) - yy[i+1]*1px;     
-        }
-
         
+        Rectangle { 
+            x: x_index * 1px;
+            y: y_index *1px;
+            for i in (yy.length -1) : Line{
+                color: color;
+                show-point: show-point;
+                r-point: r-point;
+                line_width:line_width;
+                x1: parent.x + i*step*1px; 
+                y1: (parent.y+parent.height -1px) - yy[i]*1px;
+                x2: parent.x + (i+1)*step*1px;  
+                y2: (parent.y+parent.height -1px) - yy[i+1]*1px;     
+            } 
+        }
+    }
+    
+    property <bool> isdrag;
+    property <bool> ismove;
+    if drag == true :TouchArea {
+        //timer用于排除点击便移动的情况
+        timer := Timer{
+            interval: 100ms;
+            running: false;
+            triggered => {
+                if root.isdrag==true{
+                    root.ismove=true;
+                }
+                self.running=false; //单次
+            }
+        } 
+        property <float> mouseX : self.mouse_x / 1px;
+        property <float> mouseY : self.mouse_y / 1px;
+        property <float> start_x;
+        property <float> start_y;
+
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down{
+                root.isdrag = true;
+                start_x = mouseX;
+                start_y = mouseY;
+                timer.running = true;
+                
+            }
+            
+            if self.pressed{
+                if root.ismove==true {
+                    root.mouse-drag(start_x,start_y,mouseX,mouseY);
+                    start_x = mouseX;
+                    start_y = mouseY;
+                }
+            }
+            if event.kind == PointerEventKind.up{
+                root.isdrag = false;
+                if root.ismove==true {   
+                    root.ismove = false;
+                }
+                
+            }
+        }
+    }
+    //获得偏移量，重新定位，自己调整factor确定移动快慢
+    //自己调整边界情况
+    property <float> factor: 2;
+    function mouse-drag(sx:float,sy:float,ex:float,ey:float) {
+        x_index = (x_index + (ex -sx)/factor);
+        y_index = (y_index + (ey -sy)/factor);
     }
 }
