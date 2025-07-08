@@ -141,3 +141,60 @@ export component Linegraph {
         y_index = (y_index + (ey -sy)/factor);
     }
 }
+export component myButton {
+    in-out property <color> background:#ffffff;
+    in-out property <color> border_color:#8b949e5c;
+    in-out property <length> border-width:1px;
+    in-out property <color> font-color:#000000;
+    in-out property <length> font-size;
+    in-out property <length> border_radius:5px;
+    in-out property <string> text;
+    in-out property <float> shadow-factor:0.25;
+    property <color> pre-border_color;
+    Rectangle {
+        clip: true;
+        background: background;
+        border-color: border_color;
+        border-width: border-width;
+        border-radius: border_radius;
+        
+        Text {
+            text: text;
+            color: font-color;
+            font-size: font_size;
+        }
+        ta := TouchArea {
+            pointer-event(event) => {
+                //点击时变暗
+                if event.kind == PointerEventKind.down{
+                    change-style();
+                    clicked();
+                }
+                if event.kind == PointerEventKind.up{
+                    change-back();
+                }
+            }
+        }
+        //指向时变暗
+        states [
+            hover when ta.has-hover: {
+                background : background.darker(shadow-factor);
+                border_color : border_color.darker(shadow-factor);
+            }
+            not-hover when !ta.has-hover: {
+                background : background.brighter(shadow-factor);
+                border_color : border_color.brighter(shadow-factor);
+            }
+        ]
+        
+    }
+    function change-style() {
+        background = background.darker(shadow-factor);
+        border_color = border_color.darker(shadow-factor);
+    }
+    function change-back() {
+        background = background.brighter(shadow-factor);
+        border_color = border_color.brighter(shadow-factor);
+    }
+    callback clicked();
+}
